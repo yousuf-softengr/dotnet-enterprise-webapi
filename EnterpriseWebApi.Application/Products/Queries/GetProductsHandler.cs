@@ -1,4 +1,5 @@
 ﻿using EnterpriseWebApi.Domain.Entities;
+using EnterpriseWebApi.Domain.Exceptions;
 using EnterpriseWebApi.Domain.Interfaces;
 using MediatR;
 
@@ -15,9 +16,15 @@ public class GetProductsHandler
     }
 
     public async Task<IEnumerable<Product>> Handle(
-        GetProductsQuery request,
-        CancellationToken cancellationToken)
+    GetProductsQuery request,
+    CancellationToken cancellationToken)
     {
-        return await _repo.GetAllAsync();
+        var products = await _repo.GetAllAsync();
+
+        if (!products.Any())
+            throw new NotFoundException("No products found");
+
+        return products;
     }
+
 }
