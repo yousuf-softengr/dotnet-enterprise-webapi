@@ -58,6 +58,18 @@ EnterpriseWebApi.Infrastructure
 
 ---
 
+## ❗ Error Handling
+
+This API follows RFC 7807 (ProblemDetails) for consistent error responses.
+
+Handled status codes:
+- 400 Bad Request
+- 404 Not Found
+- 409 Conflict
+- 500 Internal Server Error
+
+All errors include a traceId for diagnostics.
+
 ## ▶️ How to Run Locally
 
 ### Prerequisites
