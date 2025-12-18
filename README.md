@@ -21,7 +21,7 @@ This project demonstrates how to design scalable, maintainable, and testable bac
 ---
 
 ## 🏗 Architecture Overview
-
+```text
 EnterpriseWebApi.API
 ├── Controllers
 │ └── API endpoints
