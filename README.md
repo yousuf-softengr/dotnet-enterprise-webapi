@@ -69,6 +69,7 @@ Handled status codes:
 - 500 Internal Server Error
 
 All errors include a traceId for diagnostics.
+Unhandled exceptions are safely mapped to HTTP 500 responses to avoid leaking internal details.
 
 ## ▶️ How to Run Locally
 
