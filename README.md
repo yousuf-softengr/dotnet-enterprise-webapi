@@ -58,6 +58,12 @@ EnterpriseWebApi.Infrastructure
 
 ---
 
+## API Design
+
+The API follows RESTful conventions where resources are accessed via consistent URLs and actions are determined by HTTP verbs.
+
+---
+
 ## ❗ Error Handling
 
 This API follows RFC 7807 (ProblemDetails) for consistent error responses.
