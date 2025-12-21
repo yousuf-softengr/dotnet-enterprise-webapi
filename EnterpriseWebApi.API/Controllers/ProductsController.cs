@@ -1,4 +1,5 @@
-﻿using EnterpriseWebApi.Application.Products.Queries;
+﻿using EnterpriseWebApi.Application.Products.Commands;
+using EnterpriseWebApi.Application.Products.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,5 +20,12 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> Get()
     {
         return Ok(await _mediator.Send(new GetProductsQuery()));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateProductCommand command)
+    {
+        var id = await _mediator.Send(command);
+        return CreatedAtAction(nameof(Get), new { id }, null);
     }
 }
