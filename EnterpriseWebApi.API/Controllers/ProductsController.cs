@@ -1,6 +1,7 @@
 ﻿using EnterpriseWebApi.Application.Products.Commands;
 using EnterpriseWebApi.Application.Products.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EnterpriseWebApi.API.Controllers;
@@ -16,12 +17,15 @@ public class ProductsController : ControllerBase
         _mediator = mediator;
     }
 
+
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> Get()
     {
         return Ok(await _mediator.Send(new GetProductsQuery()));
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create(CreateProductCommand command)
     {
