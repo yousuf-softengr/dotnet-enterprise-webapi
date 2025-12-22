@@ -64,6 +64,13 @@ The API follows RESTful conventions where resources are accessed via consistent 
 
 ---
 
+## 🔐 Authentication & Authorization
+
+The API uses JWT Bearer authentication with role-based authorization.
+Protected endpoints require valid access tokens, and roles are enforced declaratively.
+
+---
+
 ## ❗ Error Handling
 
 This API follows RFC 7807 (ProblemDetails) for consistent error responses.
