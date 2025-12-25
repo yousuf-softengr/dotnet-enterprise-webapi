@@ -71,6 +71,12 @@ Protected endpoints require valid access tokens, and roles are enforced declarat
 
 ---
 
+## 🔐 Token Management
+
+The API implements secure JWT authentication using short-lived access tokens and rotating refresh tokens to ensure maximum security.
+
+---
+
 ## ❗ Error Handling
 
 This API follows RFC 7807 (ProblemDetails) for consistent error responses.
