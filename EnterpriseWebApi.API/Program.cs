@@ -3,20 +3,22 @@ using EnterpriseWebApi.API.Auth;
 using EnterpriseWebApi.API.Middleware;
 using EnterpriseWebApi.Application;
 using EnterpriseWebApi.Infrastructure;
+using EnterpriseWebApi.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 //
-// 1 Configuration bindings
+// 1️ Configuration
 //
 builder.Services.Configure<JwtOptions>(
     builder.Configuration.GetSection("Jwt"));
 
 //
-// 2️ JWT services
+// 2️ JWT
 //
 builder.Services.AddSingleton<JwtTokenGenerator>();
 
@@ -24,7 +26,9 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()!;
+        var jwt = builder.Configuration
+            .GetSection("Jwt")
+            .Get<JwtOptions>()!;
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -32,7 +36,6 @@ builder.Services
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-
             ValidIssuer = jwt.Issuer,
             ValidAudience = jwt.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(
@@ -48,28 +51,24 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
 //
-// 4️ Swagger + OpenAPI + JWT
+// 4️ Swagger
 //
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    //  REQUIRED OpenAPI definition
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "Enterprise Web API",
-        Version = "v1",
-        Description = "Enterprise-grade .NET Web API with JWT Authentication"
+        Version = "v1"
     });
 
-    //  JWT Bearer configuration
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
         Scheme = "Bearer",
         BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Enter token as: Bearer {your JWT token}"
+        In = ParameterLocation.Header
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -89,7 +88,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 //
-// 5️ Application & Infrastructure layers
+// 5️ Layers
 //
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -97,38 +96,33 @@ builder.Services.AddInfrastructure(builder.Configuration);
 var app = builder.Build();
 
 //
-// 6️ Development-only Swagger
+//  AUTO MIGRATION (IMPORTANT)
+//
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
+//
+// 6️ Swagger UI
 //
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint(
-            "/swagger/v1/swagger.json",
-            "Enterprise Web API v1"
-        );
-
-        //  VERY IMPORTANT
-        c.RoutePrefix = "swagger";
-    });
+    app.UseSwaggerUI();
 }
 
-
 //
-// 7️ Middleware pipeline (ORDER MATTERS)
+// 7️ Middleware
 //
-app.UseHttpsRedirection();
-
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 //
-// 8️ Map endpoints
+// 8️ Endpoints
 //
 app.MapControllers();
-
 app.Run();

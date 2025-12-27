@@ -1,0 +1,37 @@
+services:
+  enterprise_api:
+    build:
+      context: .
+      dockerfile: EnterpriseWebApi.API/Dockerfile
+    image: enterprisewebapi-api
+    container_name: enterprise_api
+    ports:
+      - "8082:8082"
+    depends_on:
+      - enterprise_sql
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8082
+
+      # 🔥 THIS IS THE KEY
+      ConnectionStrings__DefaultConnection: >
+        Server=enterprise_sql;
+        Database=EnterpriseWebApiDb;
+        User Id=sa;
+        Password=Sa@123456;
+        TrustServerCertificate=True;
+        Encrypt=False
+
+  enterprise_sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: enterprise_sql
+    environment:
+      SA_PASSWORD: "Sa@123456"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+volumes:
+  sql_data:
